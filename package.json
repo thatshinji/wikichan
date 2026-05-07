@@ -4,7 +4,7 @@
   "description": "Auto-generate project documentation from code analysis + LLM",
   "type": "module",
   "bin": {
-    "repowiki": "./dist/cli/index.js"
+    "wikichan": "./dist/cli/index.js"
   },
   "main": "./dist/cli/index.js",
   "scripts": {
