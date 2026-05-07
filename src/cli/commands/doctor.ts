@@ -28,15 +28,15 @@ export async function runDoctor(cwd: string, options: DoctorOptions): Promise<vo
     const config = loadConfig(options.config, cwd);
     checks.push({ name: 'config', status: 'ok', message: 'Config file is valid' });
 
-    // Check .repowiki directory
-    const repowikiDir = path.join(cwd, '.repowiki');
-    if (fs.existsSync(repowikiDir)) {
-      checks.push({ name: 'directory', status: 'ok', message: '.repowiki directory exists' });
+    // Check .wikichan directory
+    const wikichanDir = path.join(cwd, '.wikichan');
+    if (fs.existsSync(wikichanDir)) {
+      checks.push({ name: 'directory', status: 'ok', message: '.wikichan directory exists' });
     } else {
-      checks.push({ name: 'directory', status: 'warning', message: '.repowiki directory missing' });
+      checks.push({ name: 'directory', status: 'warning', message: '.wikichan directory missing' });
       if (options.fix) {
-        fs.mkdirSync(repowikiDir, { recursive: true });
-        checks.push({ name: 'directory-fix', status: 'ok', message: 'Created .repowiki directory' });
+        fs.mkdirSync(wikichanDir, { recursive: true });
+        checks.push({ name: 'directory-fix', status: 'ok', message: 'Created .wikichan directory' });
       }
     }
 
@@ -71,7 +71,7 @@ export async function runDoctor(cwd: string, options: DoctorOptions): Promise<vo
       checks.push({
         name: 'database',
         status: 'warning',
-        message: 'Database not found (run `repowiki scan` first)',
+        message: 'Database not found (run `wikichan scan` first)',
       });
     }
 

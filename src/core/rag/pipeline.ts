@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { IndexStorage } from '../indexer/storage.js';
-import type { RepowikiConfig } from '../config.js';
+import type { WikichanConfig } from '../config.js';
 import type { ParsedEntity } from '../parser/index.js';
 import { chunkBySymbol, buildEmbeddingText, type CodeChunk } from './chunker.js';
 import { createEmbeddingProvider, embedChunk, type EmbeddingProvider } from './embedder.js';
@@ -10,7 +10,7 @@ import { info, debug } from '../logger.js';
 
 export async function buildVectorIndex(
   storage: IndexStorage,
-  config: RepowikiConfig,
+  config: WikichanConfig,
   cwd: string,
 ): Promise<void> {
   if (!config.embedding) {
@@ -46,7 +46,7 @@ export async function buildVectorIndex(
   const embedder = createEmbeddingProvider(config.embedding);
   const vectorStore = await createVectorStore({
     type: config.vector.type as 'pgvector' | 'sqlite',
-    sqlite: { file: '.repowiki/vectors.db' },
+    sqlite: { file: '.wikichan/vectors.db' },
   });
   await vectorStore.init();
 
@@ -79,7 +79,7 @@ export async function buildVectorIndex(
 
 export async function queryContext(
   query: string,
-  config: RepowikiConfig,
+  config: WikichanConfig,
   topK: number = 5,
 ): Promise<string> {
   if (!config.embedding) {
@@ -89,7 +89,7 @@ export async function queryContext(
   const embedder = createEmbeddingProvider(config.embedding);
   const vectorStore = await createVectorStore({
     type: config.vector.type as 'pgvector' | 'sqlite',
-    sqlite: { file: '.repowiki/vectors.db' },
+    sqlite: { file: '.wikichan/vectors.db' },
   });
   await vectorStore.init();
 

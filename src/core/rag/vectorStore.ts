@@ -27,7 +27,7 @@ export async function createVectorStore(config: VectorStoreConfig): Promise<Vect
       }
       return new PgVectorStore(config.pgvector.url, config.pgvector.table);
     case 'sqlite':
-      return new SQLiteVectorStore(config.sqlite?.file ?? '.repowiki/vectors.db');
+      return new SQLiteVectorStore(config.sqlite?.file ?? '.wikichan/vectors.db');
     default:
       throw new Error(`Unknown vector store type: ${config.type}`);
   }

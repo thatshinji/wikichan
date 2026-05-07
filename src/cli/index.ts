@@ -2,7 +2,7 @@
 import path from 'node:path';
 import { Command } from 'commander';
 import { initLogger, error as logError } from '../core/logger.js';
-import { RepowikiError } from '../core/errors.js';
+import { WikichanError } from '../core/errors.js';
 import { runInit } from './commands/init.js';
 import { runScan } from './commands/scan.js';
 import { runGen } from './commands/gen.js';
@@ -12,13 +12,13 @@ import { runDoctor } from './commands/doctor.js';
 const program = new Command();
 
 program
-  .name('repowiki')
+  .name('wikichan')
   .description('Auto-generate project documentation from code analysis + LLM')
   .version('0.1.0')
   .option('-v, --verbose', 'Enable verbose logging')
   .option('-q, --quiet', 'Only show warnings and errors')
   .option('--log-json', 'Output logs in JSON format')
-  .option('--config <path>', 'Config file path', '.repowiki.yml')
+  .option('--config <path>', 'Config file path', '.wikichan.yml')
   .option('--cwd <path>', 'Working directory', process.cwd());
 
 // Helper to handle common command setup
@@ -150,12 +150,12 @@ program
   });
 
 function handleError(err: unknown): never {
-  if (err instanceof RepowikiError) {
-    logError('repowiki', err.message);
+  if (err instanceof WikichanError) {
+    logError('wikichan', err.message);
     process.exit(err.exitCode);
   }
   const message = err instanceof Error ? err.message : String(err);
-  logError('repowiki', `Internal error: ${message}`);
+  logError('wikichan', `Internal error: ${message}`);
   process.exit(70);
 }
 

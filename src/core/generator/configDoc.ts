@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { IndexStorage } from '../indexer/storage.js';
-import type { RepowikiConfig } from '../config.js';
+import type { WikichanConfig } from '../config.js';
 import type { LLMClient } from '../llm/client.js';
 import { getModules } from '../indexer/graph.js';
 import { info } from '../logger.js';
@@ -16,7 +16,7 @@ export interface ConfigInfo {
 
 export async function generateConfigDocs(
   storage: IndexStorage,
-  config: RepowikiConfig,
+  config: WikichanConfig,
   llm: LLMClient,
   cwd: string,
 ): Promise<void> {

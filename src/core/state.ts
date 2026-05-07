@@ -8,7 +8,7 @@ export interface RepoState {
 }
 
 export function getStateFilePath(cwd: string): string {
-  return path.join(cwd, '.repowiki', 'state.json');
+  return path.join(cwd, '.wikichan', 'state.json');
 }
 
 export function loadState(cwd: string): RepoState | null {

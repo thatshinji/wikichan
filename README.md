@@ -1,10 +1,10 @@
-# RepoWiki
+# WikiChan
 
 **自动项目文档生成系统** — 基于静态代码分析 + LLM，一键生成高质量项目文档。
 
 ## 简介
 
-RepoWiki 是一个 TypeScript CLI 工具，能够自动扫描项目源码，通过 tree-sitter 进行 AST 解析提取代码符号和关系，结合 LLM（大语言模型）智能生成项目文档。支持增量更新，只重新生成受变更影响的文档，大幅降低文档维护成本。
+WikiChan 是一个 TypeScript CLI 工具，能够自动扫描项目源码，通过 tree-sitter 进行 AST 解析提取代码符号和关系，结合 LLM（大语言模型）智能生成项目文档。支持增量更新，只重新生成受变更影响的文档，大幅降低文档维护成本。
 
 ## 核心特性
 
@@ -52,18 +52,18 @@ npm run build
 
 ```bash
 # 在目标项目目录下运行
-npx repowiki init
+npx wikichan init
 
 # 跳过文档生成，只创建配置文件
-npx repowiki init --skip-docs
+npx wikichan init --skip-docs
 
 # 覆盖已有配置
-npx repowiki init --force
+npx wikichan init --force
 ```
 
 初始化将：
-1. 生成 `.repowiki.yml` 配置文件
-2. 创建 `.repowiki/` 工作目录
+1. 生成 `.wikichan.yml` 配置文件
+2. 创建 `.wikichan/` 工作目录
 3. 扫描项目源码并构建索引
 4. 调用 LLM 生成文档（除非 `--skip-docs`）
 
@@ -71,72 +71,72 @@ npx repowiki init --force
 
 ```bash
 # 增量扫描（跳过未变更文件）
-npx repowiki scan
+npx wikichan scan
 
 # 全量重新扫描
-npx repowiki scan --full
+npx wikichan scan --full
 
 # 预览模式
-npx repowiki scan --dry-run
+npx wikichan scan --dry-run
 
 # 指定语言
-npx repowiki scan --languages ts,py
+npx wikichan scan --languages ts,py
 ```
 
 ### 生成文档
 
 ```bash
 # 生成所有文档
-npx repowiki gen
+npx wikichan gen
 
 # 只生成项目总览
-npx repowiki gen --type overview
+npx wikichan gen --type overview
 
 # 只生成模块文档
-npx repowiki gen --type module
+npx wikichan gen --type module
 
 # 只生成 API 文档
-npx repowiki gen --type api
+npx wikichan gen --type api
 
 # 只生成配置文档
-npx repowiki gen --type config
+npx wikichan gen --type config
 
 # 生成指定模块
-npx repowiki gen --type module --module parser
+npx wikichan gen --type module --module parser
 
 # 预览模式
-npx repowiki gen --dry-run
+npx wikichan gen --dry-run
 ```
 
 ### 增量更新
 
 ```bash
 # 基于上次状态自动检测变更并更新
-npx repowiki update
+npx wikichan update
 
 # 指定 git 范围
-npx repowiki update --from abc1234 --to HEAD
+npx wikichan update --from abc1234 --to HEAD
 
 # 只更新索引，不重新生成文档
-npx repowiki update --skip-docs
+npx wikichan update --skip-docs
 ```
 
 ### 健康检查
 
 ```bash
 # 检查配置、数据库、LLM、Git 状态
-npx repowiki doctor
+npx wikichan doctor
 
 # JSON 格式输出
-npx repowiki doctor --json
+npx wikichan doctor --json
 
 # 自动修复问题
-npx repowiki doctor --fix
+npx wikichan doctor --fix
 ```
 
 ## 配置文件
 
-项目根目录下的 `.repowiki.yml`：
+项目根目录下的 `.wikichan.yml`：
 
 ```yaml
 # 支持的编程语言
@@ -172,9 +172,9 @@ output:
 storage:
   type: sqlite           # sqlite 或 postgres
   sqlite:
-    file: ".repowiki/index.db"
+    file: ".wikichan/index.db"
   postgres:
-    url: "postgresql://localhost:5432/repowiki"
+    url: "postgresql://localhost:5432/wikichan"
 
 # 向量检索（RAG）
 vector:
@@ -185,13 +185,13 @@ vector:
 embedding:
   provider: openai
   model: text-embedding-3-small
-  apiKeyEnv: REPOWIKI_EMBEDDING_API_KEY
+  apiKeyEnv: WIKICHAN_EMBEDDING_API_KEY
 
 # LLM 配置
 llm:
   provider: openai        # openai / claude / deepseek
   model: gpt-4.1
-  apiKeyEnv: REPOWIKI_LLM_API_KEY
+  apiKeyEnv: WIKICHAN_LLM_API_KEY
   maxTokens: 4096
   temperature: 0.2
 ```
@@ -200,8 +200,8 @@ llm:
 
 | 变量名 | 说明 | 默认值 |
 |--------|------|--------|
-| `REPOWIKI_LLM_API_KEY` | LLM API 密钥 | — |
-| `REPOWIKI_EMBEDDING_API_KEY` | 嵌入模型 API 密钥 | — |
+| `WIKICHAN_LLM_API_KEY` | LLM API 密钥 | — |
+| `WIKICHAN_EMBEDDING_API_KEY` | 嵌入模型 API 密钥 | — |
 
 ## 生成的文档结构
 

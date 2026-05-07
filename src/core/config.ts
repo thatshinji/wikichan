@@ -3,7 +3,7 @@ import path from 'node:path';
 import yaml from 'js-yaml';
 import { ConfigError } from './errors.js';
 
-export interface RepowikiConfig {
+export interface WikichanConfig {
   languages: string[];
   include: string[];
   exclude: string[];
@@ -42,7 +42,7 @@ export interface RepowikiConfig {
   };
 }
 
-export function getDefaultConfig(): RepowikiConfig {
+export function getDefaultConfig(): WikichanConfig {
   return {
     languages: ['ts', 'js', 'py'],
     include: ['src/**'],
@@ -58,7 +58,7 @@ export function getDefaultConfig(): RepowikiConfig {
     },
     storage: {
       type: 'sqlite',
-      sqlite: { file: '.repowiki/index.db' },
+      sqlite: { file: '.wikichan/index.db' },
       postgres: { url: '' },
     },
     vector: {
@@ -68,7 +68,7 @@ export function getDefaultConfig(): RepowikiConfig {
     llm: {
       provider: 'openai',
       model: 'gpt-4.1',
-      apiKeyEnv: 'REPOWIKI_LLM_API_KEY',
+      apiKeyEnv: 'WIKICHAN_LLM_API_KEY',
       maxTokens: 4096,
       temperature: 0.2,
     },
@@ -79,7 +79,7 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
-function mergeDefaults(raw: Record<string, unknown>, defaults: RepowikiConfig): RepowikiConfig {
+function mergeDefaults(raw: Record<string, unknown>, defaults: WikichanConfig): WikichanConfig {
   const cfg = { ...defaults };
 
   if (Array.isArray(raw.languages)) cfg.languages = raw.languages as string[];
@@ -138,23 +138,23 @@ function mergeDefaults(raw: Record<string, unknown>, defaults: RepowikiConfig): 
       provider: typeof emb.provider === 'string' ? emb.provider : 'openai',
       model: typeof emb.model === 'string' ? emb.model : 'text-embedding-3-small',
       apiBase: typeof emb.apiBase === 'string' ? emb.apiBase : undefined,
-      apiKeyEnv: typeof emb.apiKeyEnv === 'string' ? emb.apiKeyEnv : 'REPOWIKI_EMBEDDING_API_KEY',
+      apiKeyEnv: typeof emb.apiKeyEnv === 'string' ? emb.apiKeyEnv : 'WIKICHAN_EMBEDDING_API_KEY',
     };
   }
 
   return cfg;
 }
 
-export function validateConfig(raw: unknown): RepowikiConfig {
+export function validateConfig(raw: unknown): WikichanConfig {
   if (!isRecord(raw)) {
     throw new ConfigError('Config file must be a YAML object');
   }
   return mergeDefaults(raw, getDefaultConfig());
 }
 
-export function loadConfig(configPath?: string, cwd?: string): RepowikiConfig {
+export function loadConfig(configPath?: string, cwd?: string): WikichanConfig {
   const base = cwd ?? process.cwd();
-  const filePath = configPath ?? path.join(base, '.repowiki.yml');
+  const filePath = configPath ?? path.join(base, '.wikichan.yml');
 
   if (!fs.existsSync(filePath)) {
     throw new ConfigError(`Config file not found: ${filePath}`);

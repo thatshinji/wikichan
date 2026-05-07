@@ -1,5 +1,5 @@
 {
-  "name": "repowiki",
+  "name": "wikichan",
   "version": "0.1.0",
   "description": "Auto-generate project documentation from code analysis + LLM",
   "type": "module",

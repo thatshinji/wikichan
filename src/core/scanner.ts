@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { glob } from 'glob';
 import { info, warn } from './logger.js';
-import type { RepowikiConfig } from './config.js';
+import type { WikichanConfig } from './config.js';
 
 export interface FileRecord {
   path: string;
@@ -26,7 +26,7 @@ function getLanguage(filePath: string): string | null {
   return EXT_TO_LANG[ext] ?? null;
 }
 
-export async function scanRepo(config: RepowikiConfig, cwd: string): Promise<FileRecord[]> {
+export async function scanRepo(config: WikichanConfig, cwd: string): Promise<FileRecord[]> {
   const allowedLangs = new Set(config.languages);
   const allFiles: FileRecord[] = [];
 

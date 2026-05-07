@@ -25,7 +25,7 @@ export async function runUpdate(cwd: string, options: UpdateOptions): Promise<vo
   if (!fromRev) {
     const state = loadState(cwd);
     if (!state) {
-      throw new Error('No previous state found. Run `repowiki init` first.');
+      throw new Error('No previous state found. Run `wikichan init` first.');
     }
     fromRev = state.lastProcessedCommit;
   }

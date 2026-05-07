@@ -1,10 +1,10 @@
 import path from 'node:path';
-import type { RepowikiConfig } from '../config.js';
+import type { WikichanConfig } from '../config.js';
 import type { IndexStorage } from './storage.js';
 import { openStorage } from './storage.js';
 import { info } from '../logger.js';
 
-export function openStorageFromConfig(config: RepowikiConfig, cwd: string): IndexStorage {
+export function openStorageFromConfig(config: WikichanConfig, cwd: string): IndexStorage {
   if (config.storage.type === 'postgres') {
     // AsyncIndexStorage exists in postgresStorage.ts but all consumers use sync IndexStorage.
     // For now, throw a descriptive error pointing users to the async interface.

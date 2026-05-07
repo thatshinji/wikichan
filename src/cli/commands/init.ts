@@ -20,7 +20,7 @@ export interface InitOptions {
 }
 
 export async function runInit(cwd: string, options: InitOptions): Promise<void> {
-  const configPath = path.join(cwd, '.repowiki.yml');
+  const configPath = path.join(cwd, '.wikichan.yml');
 
   // Check if config already exists
   if (fs.existsSync(configPath) && !options.force) {
@@ -37,10 +37,10 @@ export async function runInit(cwd: string, options: InitOptions): Promise<void> 
   fs.writeFileSync(configPath, yaml.dump(config, { indent: 2 }), 'utf-8');
   info('init', `Config written to ${configPath}`);
 
-  // Create .repowiki directory
-  const repowikiDir = path.join(cwd, '.repowiki');
-  if (!fs.existsSync(repowikiDir)) {
-    fs.mkdirSync(repowikiDir, { recursive: true });
+  // Create .wikichan directory
+  const wikichanDir = path.join(cwd, '.wikichan');
+  if (!fs.existsSync(wikichanDir)) {
+    fs.mkdirSync(wikichanDir, { recursive: true });
   }
 
   // Run scan and generate unless --no-docs

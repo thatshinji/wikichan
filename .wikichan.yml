@@ -1,0 +1,30 @@
+languages:
+  - ts
+  - js
+include:
+  - src/**
+exclude:
+  - node_modules/**
+  - dist/**
+  - .venv/**
+  - tests/**
+output:
+  root: docs/wiki
+  structure:
+    overview: overview.md
+    modulesDir: modules
+    apisDir: apis
+    config: config.md
+storage:
+  type: sqlite
+  sqlite:
+    file: .wikichan/index.db
+vector:
+  enabled: false
+  type: pgvector
+llm:
+  provider: openai
+  model: gpt-4.1
+  apiKeyEnv: WIKICHAN_LLM_API_KEY
+  maxTokens: 4096
+  temperature: 0.2

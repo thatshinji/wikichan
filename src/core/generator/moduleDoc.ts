@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { IndexStorage } from '../indexer/storage.js';
-import type { RepowikiConfig } from '../config.js';
+import type { WikichanConfig } from '../config.js';
 import type { LLMClient } from '../llm/client.js';
 import type { ModuleDocInput } from './templates.js';
 import { buildModuleDocPrompt } from './templates.js';
@@ -12,7 +12,7 @@ const MAX_SNIPPET_TOKENS = 8000; // Approximate token limit for code snippets
 
 export async function generateModuleDocs(
   storage: IndexStorage,
-  config: RepowikiConfig,
+  config: WikichanConfig,
   llm: LLMClient,
   cwd: string,
   options?: { moduleName?: string; ragContext?: string },

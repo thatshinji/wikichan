@@ -1,5 +1,5 @@
 import { ServiceError } from '../errors.js';
-import type { RepowikiConfig } from '../config.js';
+import type { WikichanConfig } from '../config.js';
 
 export interface ChatRequest {
   systemPrompt: string;
@@ -25,7 +25,7 @@ export interface ProviderOpts {
   temperature: number;
 }
 
-export async function createLLMClient(config: RepowikiConfig['llm']): Promise<LLMClient> {
+export async function createLLMClient(config: WikichanConfig['llm']): Promise<LLMClient> {
   const apiKey = process.env[config.apiKeyEnv];
   if (!apiKey) {
     throw new ServiceError(
