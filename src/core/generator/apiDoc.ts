@@ -77,7 +77,10 @@ Please generate a Markdown document with:
   });
 
   // Write to output
-  const outputPath = path.join(cwd, config.output.root, config.output.structure.apisDir, 'api.md');
+  const outputPath = path.resolve(cwd, config.output.root, config.output.structure.apisDir, 'api.md');
+  if (!outputPath.startsWith(path.resolve(cwd))) {
+    throw new Error(`Output path escapes project directory: ${outputPath}`);
+  }
   const outputDir = path.dirname(outputPath);
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
@@ -148,12 +151,47 @@ function detectEndpoint(
     };
   }
 
-  // Check for decorator-style route definitions
+  // Check for decorator-style route definitions (NestJS, TypeORM, etc.)
   const decoratorMatch = code.match(/@(Get|Post|Put|Delete|Patch)\s*\(\s*['"]([^'"]+)['"]/);
   if (decoratorMatch) {
     return {
       method: decoratorMatch[1].toUpperCase(),
       path: decoratorMatch[2],
+      handler: symbol.name,
+      file: symbol.file,
+      line: symbol.range.startLine,
+      doc: symbol.doc,
+      params: extractParams(code),
+      requestType,
+      responseType,
+    };
+  }
+
+  // Check for Fastify-style route definitions
+  const fastifyMatch = code.match(/(?:fastify|app|server)\.(get|post|put|delete|patch)\s*\(\s*['"]([^'"]+)['"]/);
+  if (fastifyMatch) {
+    return {
+      method: fastifyMatch[1].toUpperCase(),
+      path: fastifyMatch[2],
+      handler: symbol.name,
+      file: symbol.file,
+      line: symbol.range.startLine,
+      doc: symbol.doc,
+      params: extractParams(code),
+      requestType,
+      responseType,
+    };
+  }
+
+  // Check for Flask-style route decorators (@app.route, @blueprint.route)
+  const flaskMatch = code.match(/@\w+\.route\s*\(\s*['"]([^'"]+)['"](?:.*?methods\s*=\s*\[([^\]]+)\])?/);
+  if (flaskMatch) {
+    const methods = flaskMatch[2]
+      ? flaskMatch[2].split(',').map(m => m.trim().replace(/['"]/g, ''))
+      : ['GET'];
+    return {
+      method: methods[0].toUpperCase(),
+      path: flaskMatch[1],
       handler: symbol.name,
       file: symbol.file,
       line: symbol.range.startLine,

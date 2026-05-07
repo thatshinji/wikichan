@@ -6,7 +6,7 @@ import type { LLMClient } from '../llm/client.js';
 import type { OverviewInput } from './templates.js';
 import { buildOverviewPrompt } from './templates.js';
 import { getModules } from '../indexer/graph.js';
-import { info } from '../logger.js';
+import { info, warn } from '../logger.js';
 
 export async function generateOverview(
   storage: IndexStorage,
@@ -32,8 +32,8 @@ export async function generateOverview(
       dependencies = Object.fromEntries(
         Object.entries(allDeps).filter(([_, v]) => typeof v === 'string')
       ) as Record<string, string>;
-    } catch {
-      // Ignore parse errors
+    } catch (err) {
+      warn('gen', `Failed to parse package.json: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -50,8 +50,8 @@ export async function generateOverview(
           dependencies[match[1]] = match[2]?.trim() ?? '*';
         }
       }
-    } catch {
-      // Ignore parse errors
+    } catch (err) {
+      warn('gen', `Failed to parse requirements.txt: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -70,8 +70,8 @@ export async function generateOverview(
           }
         }
       }
-    } catch {
-      // Ignore parse errors
+    } catch (err) {
+      warn('gen', `Failed to parse pyproject.toml: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -103,7 +103,10 @@ export async function generateOverview(
   const response = await llm.chat(prompt);
 
   // Write to output
-  const outputPath = path.join(cwd, config.output.root, config.output.structure.overview);
+  const outputPath = path.resolve(cwd, config.output.root, config.output.structure.overview);
+  if (!outputPath.startsWith(path.resolve(cwd))) {
+    throw new Error(`Output path escapes project directory: ${outputPath}`);
+  }
   const outputDir = path.dirname(outputPath);
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });

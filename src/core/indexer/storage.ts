@@ -4,6 +4,16 @@ import fs from 'node:fs';
 import type { FileRecord } from '../scanner.js';
 import type { ParsedEntity, CodeRelation } from '../parser/index.js';
 
+function safeParseJson(raw: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export interface IndexStorage {
   init(): void;
   close(): void;
@@ -29,6 +39,7 @@ export function openStorage(dbPath: string): IndexStorage {
   const db = new Database(dbPath);
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
+  db.pragma('busy_timeout = 5000');
 
   const storage: IndexStorage = {
     init() {
@@ -186,7 +197,7 @@ export function openStorage(dbPath: string): IndexStorage {
         name: row.name,
         file: getFilePath(row.file_id),
         range: { startLine: row.start_line, endLine: row.end_line },
-        parents: JSON.parse(row.parents || '[]'),
+        parents: safeParseJson(row.parents),
         doc: row.doc,
       }));
     },
@@ -213,7 +224,7 @@ export function openStorage(dbPath: string): IndexStorage {
         name: row.name,
         file: filePath,
         range: { startLine: row.start_line, endLine: row.end_line },
-        parents: JSON.parse(row.parents || '[]'),
+        parents: safeParseJson(row.parents),
         doc: row.doc,
       }));
     },
@@ -236,7 +247,7 @@ export function openStorage(dbPath: string): IndexStorage {
         name: row.name,
         file: row.path,
         range: { startLine: row.start_line, endLine: row.end_line },
-        parents: JSON.parse(row.parents || '[]'),
+        parents: safeParseJson(row.parents),
         doc: row.doc,
       }));
     },

@@ -6,6 +6,8 @@ export interface FileChange {
 }
 
 function isValidGitRef(ref: string): boolean {
+  // Must not be empty, must not start/end with dot, no consecutive dots, no path traversal
+  if (!ref || ref.startsWith('.') || ref.endsWith('.') || ref.includes('..')) return false;
   return /^[a-zA-Z0-9_\-./^~]+$/.test(ref);
 }
 

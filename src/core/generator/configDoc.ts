@@ -64,7 +64,10 @@ Please generate a Markdown document with:
   });
 
   // Write to output
-  const outputPath = path.join(cwd, config.output.root, config.output.structure.config);
+  const outputPath = path.resolve(cwd, config.output.root, config.output.structure.config);
+  if (!outputPath.startsWith(path.resolve(cwd))) {
+    throw new Error(`Output path escapes project directory: ${outputPath}`);
+  }
   const outputDir = path.dirname(outputPath);
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });

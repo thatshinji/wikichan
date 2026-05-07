@@ -1,6 +1,7 @@
 import type { FileRecord } from '../scanner.js';
 import { TsParser } from './tsParser.js';
 import { PyParser } from './pyParser.js';
+import { warn } from '../logger.js';
 
 export interface ParsedEntity {
   id: string;
@@ -33,7 +34,9 @@ export function getParser(language: string): Parser {
       return new PyParser();
     case 'ts':
     case 'js':
+      return new TsParser();
     default:
+      warn('parser', `Unknown language "${language}", falling back to TypeScript parser`);
       return new TsParser();
   }
 }

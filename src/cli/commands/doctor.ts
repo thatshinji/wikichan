@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { loadConfig } from '../../core/config.js';
@@ -102,7 +103,6 @@ export async function runDoctor(cwd: string, options: DoctorOptions): Promise<vo
 
     // Check git
     try {
-      const { execSync } = await import('node:child_process');
       execSync('git rev-parse HEAD', { cwd, stdio: 'ignore' });
       checks.push({ name: 'git', status: 'ok', message: 'Git repository detected' });
     } catch {

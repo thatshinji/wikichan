@@ -149,7 +149,34 @@ export function validateConfig(raw: unknown): WikichanConfig {
   if (!isRecord(raw)) {
     throw new ConfigError('Config file must be a YAML object');
   }
-  return mergeDefaults(raw, getDefaultConfig());
+  const cfg = mergeDefaults(raw, getDefaultConfig());
+
+  // Validate llm config
+  if (cfg.llm.maxTokens < 1 || cfg.llm.maxTokens > 1_000_000) {
+    throw new ConfigError(`Invalid llm.maxTokens: ${cfg.llm.maxTokens}. Must be between 1 and 1000000.`);
+  }
+  if (cfg.llm.temperature < 0 || cfg.llm.temperature > 2) {
+    throw new ConfigError(`Invalid llm.temperature: ${cfg.llm.temperature}. Must be between 0 and 2.`);
+  }
+
+  // Validate Postgres URL format
+  if (cfg.storage.type === 'postgres') {
+    if (!cfg.storage.postgres.url) {
+      throw new ConfigError('Postgres storage requires a URL in storage.postgres.url');
+    }
+    try {
+      new URL(cfg.storage.postgres.url);
+    } catch {
+      throw new ConfigError(`Invalid Postgres URL: ${cfg.storage.postgres.url}`);
+    }
+  }
+
+  // Validate output.root doesn't escape
+  if (cfg.output.root.includes('..')) {
+    throw new ConfigError(`output.root must not contain "..": ${cfg.output.root}`);
+  }
+
+  return cfg;
 }
 
 export function loadConfig(configPath?: string, cwd?: string): WikichanConfig {

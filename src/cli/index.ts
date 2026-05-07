@@ -149,14 +149,15 @@ program
     }
   });
 
-function handleError(err: unknown): never {
+function handleError(err: unknown): void {
   if (err instanceof WikichanError) {
     logError('wikichan', err.message);
-    process.exit(err.exitCode);
+    process.exitCode = err.exitCode;
+    return;
   }
   const message = err instanceof Error ? err.message : String(err);
   logError('wikichan', `Internal error: ${message}`);
-  process.exit(70);
+  process.exitCode = 70;
 }
 
 program.parse();

@@ -6,7 +6,7 @@ import type { LLMClient } from '../llm/client.js';
 import type { ModuleDocInput } from './templates.js';
 import { buildModuleDocPrompt } from './templates.js';
 import { getModules, getModuleByName } from '../indexer/graph.js';
-import { info } from '../logger.js';
+import { info, warn } from '../logger.js';
 
 const MAX_SNIPPET_TOKENS = 8000; // Approximate token limit for code snippets
 
@@ -60,7 +60,7 @@ export async function generateModuleDocs(
         sourceSnippets.push({ symbolId: symbol.id, code: snippet, language: langMap[ext] ?? 'text' });
         totalChars += snippet.length;
       } catch {
-        // Skip unreadable files
+        warn('gen', `Cannot read source for snippet: ${symbol.file}`);
       }
     }
 
@@ -87,12 +87,16 @@ export async function generateModuleDocs(
     results.push({ moduleName: mod.name, content: response.content });
 
     // Write to output
-    const outputPath = path.join(
+    const outputPath = path.resolve(
       cwd,
       config.output.root,
       config.output.structure.modulesDir,
       `${mod.name}.md`
     );
+    if (!outputPath.startsWith(path.resolve(cwd))) {
+      warn('gen', `Output path escapes project directory, skipping: ${mod.name}`);
+      continue;
+    }
     const outputDir = path.dirname(outputPath);
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });

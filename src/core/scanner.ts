@@ -62,6 +62,8 @@ export async function scanRepo(config: WikichanConfig, cwd: string): Promise<Fil
   }
 
   if (config.maxFiles && allFiles.length > config.maxFiles) {
+    // Sort by last modified (newest first) so truncation keeps the most recently changed files
+    allFiles.sort((a, b) => b.lastModified - a.lastModified);
     warn('scan', `File limit reached (${config.maxFiles}), ${allFiles.length - config.maxFiles} files excluded`);
     allFiles.length = config.maxFiles;
   }

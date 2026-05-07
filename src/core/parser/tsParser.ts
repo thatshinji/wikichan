@@ -304,7 +304,7 @@ export class TsParser implements IParser {
   }
 
   private extractDoc(node: Parser.SyntaxNode, source: string): string | null {
-    // Walk backwards through siblings, skipping whitespace, to find JSDoc comment
+    // Walk backwards through siblings, skipping whitespace and decorators/attributes, to find JSDoc comment
     let sibling = node.previousSibling;
     while (sibling) {
       if (sibling.type === 'comment') {
@@ -322,12 +322,16 @@ export class TsParser implements IParser {
         // Found a non-JSDoc comment, stop searching
         break;
       }
-      // Skip whitespace nodes
-      if (sibling.type !== 'comment' && sibling.text.trim() === '') {
+      // Skip whitespace, decorators, and accessibility modifiers
+      if (
+        sibling.text.trim() === '' ||
+        sibling.type === 'decorator' ||
+        sibling.type === 'accessibility_modifier'
+      ) {
         sibling = sibling.previousSibling;
         continue;
       }
-      // Found non-whitespace, non-comment node, stop
+      // Found non-whitespace, non-comment, non-decorator node, stop
       break;
     }
     return null;
