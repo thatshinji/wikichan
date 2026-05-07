@@ -7,7 +7,7 @@ import { generateApiDocs } from '../../core/generator/apiDoc.js';
 import { generateConfigDocs } from '../../core/generator/configDoc.js';
 import { getModules } from '../../core/indexer/graph.js';
 import { queryContext } from '../../core/rag/pipeline.js';
-import { info } from '../../core/logger.js';
+import { info, warn } from '../../core/logger.js';
 
 export interface GenOptions {
   all?: boolean;
@@ -67,6 +67,12 @@ export async function runGen(cwd: string, options: GenOptions): Promise<void> {
 
     // Generate module docs
     if (!options.type || options.type === 'module') {
+      if (options.module) {
+        const modules = getModules(storage);
+        if (!modules.some(m => m.name === options.module)) {
+          warn('gen', `Module "${options.module}" not found. Available: ${modules.map(m => m.name).join(', ')}`);
+        }
+      }
       await generateModuleDocs(storage, config, llm, cwd, {
         moduleName: options.module,
         ragContext,

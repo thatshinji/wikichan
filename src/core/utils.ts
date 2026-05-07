@@ -1,7 +1,7 @@
 /**
  * Extract module name from file path.
  * Returns the top-level directory name under src/, or 'root' for files directly in src/.
- * Returns null if the path doesn't contain a src/ directory.
+ * For projects without src/, falls back to the first directory component.
  */
 export function extractModuleName(filePath: string): string | null {
   // Normalize path separators to forward slash for cross-platform compatibility
@@ -15,6 +15,10 @@ export function extractModuleName(filePath: string): string | null {
       return 'root';
     }
     return nextPart;
+  }
+  // Fallback: use first directory component
+  if (parts.length > 1 && !parts[0].includes('.')) {
+    return parts[0];
   }
   return null;
 }

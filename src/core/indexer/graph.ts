@@ -37,9 +37,12 @@ export function getModules(storage: IndexStorage): ModuleInfo[] {
   for (const symbol of allSymbols) {
     if (symbol.kind !== 'module') {
       const moduleName = extractModuleNameOrRoot(symbol.file);
-      if (moduleMap.has(moduleName)) {
-        moduleMap.get(moduleName)!.symbols.push(symbol);
+      if (!moduleMap.has(moduleName)) {
+        moduleMap.set(moduleName, { files: new Set(), symbols: [] });
       }
+      const mod = moduleMap.get(moduleName)!;
+      mod.files.add(symbol.file);
+      mod.symbols.push(symbol);
     }
   }
 
@@ -48,8 +51,10 @@ export function getModules(storage: IndexStorage): ModuleInfo[] {
   const reverseDepGraph = new Map<string, Set<string>>();
 
   for (const rel of importRelations) {
-    const fromModule = extractModuleNameOrRoot(rel.from.replace(/:.*$/, ''));
-    const toModule = extractModuleNameOrRoot(rel.to.replace(/:.*$/, ''));
+    const fromPath = rel.from.replace(/:[A-Za-z_]\w*$/, '');
+    const toPath = rel.to.replace(/:[A-Za-z_]\w*$/, '');
+    const fromModule = extractModuleNameOrRoot(fromPath);
+    const toModule = extractModuleNameOrRoot(toPath);
 
     if (fromModule === toModule) continue; // Skip self-imports
 
@@ -85,8 +90,10 @@ export function getDependencyGraph(storage: IndexStorage): Map<string, string[]>
   const graph = new Map<string, Set<string>>();
 
   for (const rel of importRelations) {
-    const fromModule = extractModuleNameOrRoot(rel.from.replace(/:.*$/, ''));
-    const toModule = extractModuleNameOrRoot(rel.to.replace(/:.*$/, ''));
+    const fromPath = rel.from.replace(/:[A-Za-z_]\w*$/, '');
+    const toPath = rel.to.replace(/:[A-Za-z_]\w*$/, '');
+    const fromModule = extractModuleNameOrRoot(fromPath);
+    const toModule = extractModuleNameOrRoot(toPath);
 
     if (fromModule === toModule) continue;
 

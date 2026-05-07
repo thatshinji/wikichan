@@ -42,7 +42,7 @@ export async function generateModuleDocs(
       .filter(s => s.kind === 'class' || s.kind === 'function' || s.kind === 'method')
       .slice(0, 20);
 
-    const sourceSnippets: { symbolId: string; code: string }[] = [];
+    const sourceSnippets: { symbolId: string; code: string; language?: string }[] = [];
     let totalChars = 0;
 
     for (const symbol of importantSymbols) {
@@ -55,7 +55,9 @@ export async function generateModuleDocs(
           .join('\n');
 
         if (totalChars + snippet.length > MAX_SNIPPET_TOKENS * 3) break; // Conservative char-to-token ratio
-        sourceSnippets.push({ symbolId: symbol.id, code: snippet });
+        const ext = path.extname(symbol.file);
+        const langMap: Record<string, string> = { '.ts': 'typescript', '.tsx': 'typescript', '.js': 'javascript', '.jsx': 'javascript', '.py': 'python' };
+        sourceSnippets.push({ symbolId: symbol.id, code: snippet, language: langMap[ext] ?? 'text' });
         totalChars += snippet.length;
       } catch {
         // Skip unreadable files

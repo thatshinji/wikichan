@@ -1,5 +1,6 @@
 import type { CodeChunk } from './chunker.js';
 import { buildEmbeddingText } from './chunker.js';
+import { ServiceError } from '../errors.js';
 
 export interface EmbeddingProvider {
   embed(text: string): Promise<number[]>;
@@ -10,14 +11,14 @@ export function createEmbeddingProvider(
 ): EmbeddingProvider {
   const apiKey = process.env[config.apiKeyEnv];
   if (!apiKey) {
-    throw new Error(`Embedding API key not found. Set the environment variable ${config.apiKeyEnv}`);
+    throw new ServiceError(`Embedding API key not found. Set the environment variable ${config.apiKeyEnv}`);
   }
 
   switch (config.provider) {
     case 'openai':
       return new OpenAIEmbeddingProvider(apiKey, config.model, config.apiBase);
     default:
-      throw new Error(`Unknown embedding provider: ${config.provider}`);
+      throw new ServiceError(`Unknown embedding provider: ${config.provider}`);
   }
 }
 
@@ -46,7 +47,7 @@ class OpenAIEmbeddingProvider implements EmbeddingProvider {
     });
 
     if (!response.ok) {
-      throw new Error(`Embedding API error: ${response.status} ${response.statusText}`);
+      throw new ServiceError(`Embedding API error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json() as { data: Array<{ embedding: number[] }> };

@@ -12,7 +12,7 @@ export interface ModuleDocInput {
   name: string;
   symbols: ParsedEntity[];
   relations: { from: string; to: string; type: string }[];
-  sourceSnippets: { symbolId: string; code: string }[];
+  sourceSnippets: { symbolId: string; code: string; language?: string }[];
 }
 
 export function buildOverviewPrompt(projectInfo: OverviewInput): {
@@ -71,7 +71,7 @@ Output ONLY the Markdown content, no preamble or explanations.`;
     .join('\n');
 
   const snippetSection = moduleInfo.sourceSnippets
-    .map(s => `### ${s.symbolId}\n\`\`\`typescript\n${s.code}\n\`\`\``)
+    .map(s => `### ${s.symbolId}\n\`\`\`${s.language ?? 'text'}\n${s.code}\n\`\`\``)
     .join('\n\n');
 
   const userPrompt = `Generate documentation for the **${moduleInfo.name}** module.

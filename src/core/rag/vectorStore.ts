@@ -1,5 +1,6 @@
 import type Database from 'better-sqlite3';
 import type { CodeChunk } from './chunker.js';
+import { ConfigError } from '../errors.js';
 
 export interface VectorStore {
   init(): Promise<void>;
@@ -25,13 +26,13 @@ export async function createVectorStore(config: VectorStoreConfig): Promise<Vect
   switch (config.type) {
     case 'pgvector':
       if (!config.pgvector) {
-        throw new Error('pgvector configuration is required');
+        throw new ConfigError('pgvector configuration is required');
       }
       return new PgVectorStore(config.pgvector.url, config.pgvector.table, config.pgvector.vectorDimension);
     case 'sqlite':
       return new SQLiteVectorStore(config.sqlite?.file ?? '.wikichan/vectors.db');
     default:
-      throw new Error(`Unknown vector store type: ${config.type}`);
+      throw new ConfigError(`Unknown vector store type: ${config.type}`);
   }
 }
 
@@ -218,5 +219,6 @@ function cosineSimilarity(a: number[], b: number[]): number {
     normB += b[i] * b[i];
   }
 
-  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+  const denominator = Math.sqrt(normA) * Math.sqrt(normB);
+  return denominator === 0 ? 0 : dotProduct / denominator;
 }
