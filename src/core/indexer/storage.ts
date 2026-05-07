@@ -26,6 +26,7 @@ export interface IndexStorage {
   getSymbolsByFile(filePath: string): ParsedEntity[];
   getSymbolsByKind(kind: string): ParsedEntity[];
   getRelationsByFrom(fromId: string): CodeRelation[];
+  getRelationsByTo(toId: string): CodeRelation[];
   getRelationsByType(type: string): CodeRelation[];
   clearAll(): void;
 }
@@ -254,6 +255,20 @@ export function openStorage(dbPath: string): IndexStorage {
 
     getRelationsByFrom(fromId: string): CodeRelation[] {
       const rows = db.prepare('SELECT * FROM relations WHERE from_symbol_id = ?').all(fromId) as Array<{
+        from_symbol_id: string;
+        to_symbol_id: string;
+        type: string;
+      }>;
+
+      return rows.map(row => ({
+        from: row.from_symbol_id,
+        to: row.to_symbol_id,
+        type: row.type as CodeRelation['type'],
+      }));
+    },
+
+    getRelationsByTo(toId: string): CodeRelation[] {
+      const rows = db.prepare('SELECT * FROM relations WHERE to_symbol_id = ?').all(toId) as Array<{
         from_symbol_id: string;
         to_symbol_id: string;
         type: string;

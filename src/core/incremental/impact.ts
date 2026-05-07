@@ -95,33 +95,9 @@ function findTransitiveDependencies(
 }
 
 function findDependents(symbolId: string, storage: IndexStorage): string[] {
-  const dependents: string[] = [];
-
-  // Find all relations that reference this symbol
-  const allRelations = storage.getRelationsByType('IMPORTS');
-  for (const rel of allRelations) {
-    if (rel.to === symbolId) {
-      dependents.push(rel.from);
-    }
-  }
-
-  // Also check CALLS relations
-  const callRelations = storage.getRelationsByType('CALLS');
-  for (const rel of callRelations) {
-    if (rel.to === symbolId) {
-      dependents.push(rel.from);
-    }
-  }
-
-  // Check USES relations
-  const useRelations = storage.getRelationsByType('USES');
-  for (const rel of useRelations) {
-    if (rel.to === symbolId) {
-      dependents.push(rel.from);
-    }
-  }
-
-  return dependents;
+  // getRelationsByTo uses a DB index on to_symbol_id — much faster than loading all relations
+  const relations = storage.getRelationsByTo(symbolId);
+  return relations.map(rel => rel.from);
 }
 
 export function getAffectedDocuments(

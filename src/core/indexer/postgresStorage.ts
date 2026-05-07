@@ -13,6 +13,7 @@ export interface AsyncIndexStorage {
   getSymbolsByFile(filePath: string): Promise<ParsedEntity[]>;
   getSymbolsByKind(kind: string): Promise<ParsedEntity[]>;
   getRelationsByFrom(fromId: string): Promise<CodeRelation[]>;
+  getRelationsByTo(toId: string): Promise<CodeRelation[]>;
   getRelationsByType(type: string): Promise<CodeRelation[]>;
   clearAll(): Promise<void>;
 }
@@ -224,6 +225,18 @@ export async function openPostgresStorage(config: PostgresStorageConfig): Promis
       const result = await client.query(
         'SELECT * FROM relations WHERE from_symbol_id = $1',
         [fromId]
+      );
+      return result.rows.map((row: { from_symbol_id: string; to_symbol_id: string; type: string }) => ({
+        from: row.from_symbol_id,
+        to: row.to_symbol_id,
+        type: row.type as CodeRelation['type'],
+      }));
+    },
+
+    async getRelationsByTo(toId: string): Promise<CodeRelation[]> {
+      const result = await client.query(
+        'SELECT * FROM relations WHERE to_symbol_id = $1',
+        [toId]
       );
       return result.rows.map((row: { from_symbol_id: string; to_symbol_id: string; type: string }) => ({
         from: row.from_symbol_id,

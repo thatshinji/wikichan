@@ -85,7 +85,7 @@ function mergeDefaults(raw: Record<string, unknown>, defaults: WikichanConfig): 
   if (Array.isArray(raw.languages)) cfg.languages = raw.languages as string[];
   if (Array.isArray(raw.include)) cfg.include = raw.include as string[];
   if (Array.isArray(raw.exclude)) cfg.exclude = raw.exclude as string[];
-  if (typeof raw.maxFiles === 'number') cfg.maxFiles = raw.maxFiles;
+  if (typeof raw.maxFiles === 'number' && raw.maxFiles > 0) cfg.maxFiles = raw.maxFiles;
 
   if (isRecord(raw.output)) {
     const out = raw.output as Record<string, unknown>;
