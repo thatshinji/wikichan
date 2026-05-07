@@ -171,7 +171,7 @@ export function loadConfig(configPath?: string, cwd?: string): WikichanConfig {
   try {
     raw = yaml.load(content);
   } catch (err) {
-    throw new ConfigError(`Invalid YAML in config file: ${err}`);
+    throw new ConfigError(`Invalid YAML in config file: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   return validateConfig(raw);

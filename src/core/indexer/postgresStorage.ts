@@ -19,6 +19,7 @@ export interface AsyncIndexStorage {
 
 export interface PostgresStorageConfig {
   url: string;
+  vectorDimension?: number; // default 1536
 }
 
 export async function openPostgresStorage(config: PostgresStorageConfig): Promise<AsyncIndexStorage> {

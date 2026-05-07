@@ -203,17 +203,17 @@ function extractTypes(code: string): { requestType: string | null; responseType:
   let responseType: string | null = null;
 
   // Extract request type from function parameter annotations
-  // Pattern: (req: RequestType, res: ResponseType) or (req: RequestType)
-  const reqTypeMatch = code.match(/\(\s*(?:req|request)\s*:\s*([A-Z][a-zA-Z0-9<>[\]|\s&]+?)(?:\s*[,)])/);
+  // Capture everything after `:` until `,` or `)` — handles generics, unions, intersections
+  const reqTypeMatch = code.match(/\(\s*(?:req|request)\s*:\s*([^,)]+)/);
   if (reqTypeMatch) {
     requestType = reqTypeMatch[1].trim();
   }
 
   // Extract return type from function signature
-  // Pattern: ): ReturnType { or ): Promise<ReturnType> {
-  const returnTypeMatch = code.match(/\)\s*:\s*(Promise<([^>]+)>|([A-Z][a-zA-Z0-9<>[\]|\s&]+?))\s*\{/);
+  // Capture everything after `):` until `{` — handles Promise<T>, union types, etc.
+  const returnTypeMatch = code.match(/\)\s*:\s*(.+?)\s*\{/);
   if (returnTypeMatch) {
-    responseType = (returnTypeMatch[2] ?? returnTypeMatch[3])?.trim() ?? null;
+    responseType = returnTypeMatch[1].trim();
   }
 
   return { requestType, responseType };

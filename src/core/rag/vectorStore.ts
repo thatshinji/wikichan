@@ -1,3 +1,4 @@
+import type Database from 'better-sqlite3';
 import type { CodeChunk } from './chunker.js';
 
 export interface VectorStore {
@@ -13,6 +14,7 @@ export interface VectorStoreConfig {
   pgvector?: {
     url: string;
     table: string;
+    vectorDimension?: number; // default 1536
   };
   sqlite?: {
     file: string;
@@ -25,7 +27,7 @@ export async function createVectorStore(config: VectorStoreConfig): Promise<Vect
       if (!config.pgvector) {
         throw new Error('pgvector configuration is required');
       }
-      return new PgVectorStore(config.pgvector.url, config.pgvector.table);
+      return new PgVectorStore(config.pgvector.url, config.pgvector.table, config.pgvector.vectorDimension);
     case 'sqlite':
       return new SQLiteVectorStore(config.sqlite?.file ?? '.wikichan/vectors.db');
     default:
@@ -33,15 +35,24 @@ export async function createVectorStore(config: VectorStoreConfig): Promise<Vect
   }
 }
 
+function validateTableName(name: string): void {
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+    throw new Error(`Invalid table name: "${name}". Must match /^[a-zA-Z_][a-zA-Z0-9_]*$/`);
+  }
+}
+
 class PgVectorStore implements VectorStore {
   private url: string;
   private table: string;
+  private vectorDimension: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private client: any;
 
-  constructor(url: string, table: string) {
+  constructor(url: string, table: string, vectorDimension?: number) {
+    validateTableName(table);
     this.url = url;
     this.table = table;
+    this.vectorDimension = vectorDimension ?? 1536;
   }
 
   async init(): Promise<void> {
@@ -53,7 +64,7 @@ class PgVectorStore implements VectorStore {
     await this.client.query(`
       CREATE TABLE IF NOT EXISTS ${this.table} (
         chunk_id TEXT PRIMARY KEY,
-        embedding VECTOR(1536),
+        embedding VECTOR(${this.vectorDimension}),
         meta JSONB
       )
     `);
@@ -110,8 +121,7 @@ class PgVectorStore implements VectorStore {
 
 class SQLiteVectorStore implements VectorStore {
   private dbPath: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private db: any;
+  private db!: Database.Database;
 
   constructor(dbPath: string) {
     this.dbPath = dbPath;

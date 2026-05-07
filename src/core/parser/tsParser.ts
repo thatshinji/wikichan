@@ -1,6 +1,7 @@
 import Parser from 'tree-sitter';
 import TypeScript from 'tree-sitter-typescript';
 import path from 'node:path';
+import fs from 'node:fs';
 import type { FileRecord } from '../scanner.js';
 import type { ParsedEntity, CodeRelation, ParseResult, Parser as IParser } from './index.js';
 
@@ -274,15 +275,32 @@ export class TsParser implements IParser {
 
   private resolveImportPath(importPath: string, fromFile: string): string {
     const dir = path.dirname(fromFile);
-    let resolved = path.join(dir, importPath);
+    const resolved = path.join(dir, importPath);
 
-    // Add extension if missing
-    if (!path.extname(resolved)) {
-      resolved += '.ts';
+    // If already has a recognized extension, return as-is
+    const ext = path.extname(resolved);
+    if (['.ts', '.tsx', '.js', '.jsx'].includes(ext)) {
+      return resolved.replace(/^\.\//, '');
     }
 
-    // Normalize to relative path from project root
-    return resolved.replace(/^\.\//, '');
+    // Try extensions in order
+    for (const tryExt of ['.ts', '.tsx', '.js', '.jsx']) {
+      const candidate = resolved + tryExt;
+      if (fs.existsSync(candidate)) {
+        return candidate.replace(/^\.\//, '');
+      }
+    }
+
+    // Try index files in directory
+    for (const tryExt of ['/index.ts', '/index.tsx', '/index.js', '/index.jsx']) {
+      const candidate = resolved + tryExt;
+      if (fs.existsSync(candidate)) {
+        return candidate.replace(/^\.\//, '');
+      }
+    }
+
+    // Fallback: append .ts
+    return (resolved + '.ts').replace(/^\.\//, '');
   }
 
   private extractDoc(node: Parser.SyntaxNode, source: string): string | null {

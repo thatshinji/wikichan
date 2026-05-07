@@ -5,7 +5,15 @@ export interface FileChange {
   path: string;
 }
 
+function isValidGitRef(ref: string): boolean {
+  return /^[a-zA-Z0-9_\-./^~]+$/.test(ref);
+}
+
 export function getChanges(fromRev: string, toRev: string, cwd: string): FileChange[] {
+  if (!isValidGitRef(fromRev) || !isValidGitRef(toRev)) {
+    throw new Error(`Invalid git ref: "${fromRev}" or "${toRev}"`);
+  }
+
   try {
     const output = execSync(`git diff --name-status ${fromRev}..${toRev}`, {
       cwd,
