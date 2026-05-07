@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import type { LLMClient, ChatRequest, ChatResponse } from '../client.js';
 import type { ProviderOpts } from '../client.js';
+import { ServiceError } from '../../errors.js';
 
 export class OpenAIProvider implements LLMClient {
   private client: OpenAI;
@@ -31,7 +32,7 @@ export class OpenAIProvider implements LLMClient {
 
     const choice = response.choices[0];
     if (!choice?.message?.content) {
-      throw new Error('Empty response from OpenAI');
+      throw new ServiceError('Empty response from OpenAI');
     }
 
     return {

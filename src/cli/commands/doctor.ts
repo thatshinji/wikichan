@@ -43,15 +43,15 @@ export async function runDoctor(cwd: string, options: DoctorOptions): Promise<vo
     // Check SQLite database
     const dbPath = path.join(cwd, config.storage.sqlite.file);
     if (fs.existsSync(dbPath)) {
+      let storage;
       try {
-        const storage = openStorage(dbPath);
+        storage = openStorage(dbPath);
         const symbols = storage.getAllSymbols();
         checks.push({
           name: 'database',
           status: 'ok',
           message: `Database exists with ${symbols.length} symbols`,
         });
-        storage.close();
       } catch (err) {
         checks.push({
           name: 'database',
@@ -66,6 +66,8 @@ export async function runDoctor(cwd: string, options: DoctorOptions): Promise<vo
             message: 'Removed corrupted database',
           });
         }
+      } finally {
+        storage?.close();
       }
     } else {
       checks.push({

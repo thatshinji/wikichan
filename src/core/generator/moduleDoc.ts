@@ -32,21 +32,10 @@ export async function generateModuleDocs(
 
     // Get relations involving this module's symbols
     const symbolIds = new Set(mod.symbols.map(s => s.id));
-    const symbolNameMap = new Map(mod.symbols.map(s => [s.id, s.name]));
     const allImportRelations = storage.getRelationsByType('IMPORTS');
     const moduleRelations = allImportRelations.filter(
       r => symbolIds.has(r.from) || symbolIds.has(r.to)
     );
-
-    // Extract call chains from CALLS relations
-    const allCallRelations = storage.getRelationsByType('CALLS');
-    const moduleCallRelations = allCallRelations.filter(
-      r => symbolIds.has(r.from) || symbolIds.has(r.to)
-    );
-    const callChains = moduleCallRelations.map(r => ({
-      caller: symbolNameMap.get(r.from) ?? r.from,
-      callee: symbolNameMap.get(r.to) ?? r.to,
-    }));
 
     // Extract code snippets for important symbols
     const importantSymbols = mod.symbols
@@ -82,7 +71,6 @@ export async function generateModuleDocs(
         type: r.type,
       })),
       sourceSnippets,
-      callChains,
     };
 
     const prompt = buildModuleDocPrompt(moduleDocInput);

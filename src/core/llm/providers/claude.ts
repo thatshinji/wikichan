@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { LLMClient, ChatRequest, ChatResponse } from '../client.js';
 import type { ProviderOpts } from '../client.js';
+import { ServiceError } from '../../errors.js';
 
 export class ClaudeProvider implements LLMClient {
   private client: Anthropic;
@@ -31,7 +32,7 @@ export class ClaudeProvider implements LLMClient {
 
     const textBlock = response.content.find(b => b.type === 'text');
     if (!textBlock || !('text' in textBlock)) {
-      throw new Error('Empty response from Claude');
+      throw new ServiceError('Empty response from Claude');
     }
 
     return {

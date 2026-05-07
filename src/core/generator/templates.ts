@@ -13,7 +13,6 @@ export interface ModuleDocInput {
   symbols: ParsedEntity[];
   relations: { from: string; to: string; type: string }[];
   sourceSnippets: { symbolId: string; code: string }[];
-  callChains: { caller: string; callee: string }[];
 }
 
 export function buildOverviewPrompt(projectInfo: OverviewInput): {
@@ -75,10 +74,6 @@ Output ONLY the Markdown content, no preamble or explanations.`;
     .map(s => `### ${s.symbolId}\n\`\`\`typescript\n${s.code}\n\`\`\``)
     .join('\n\n');
 
-  const callChainSection = moduleInfo.callChains
-    .map(c => `- ${c.caller} → ${c.callee}`)
-    .join('\n');
-
   const userPrompt = `Generate documentation for the **${moduleInfo.name}** module.
 
 ## Symbols
@@ -89,9 +84,6 @@ ${relationList || '(no relations)'}
 
 ## Source Code Snippets
 ${snippetSection || '(no snippets)'}
-
-## Call Chains
-${callChainSection || '(no call chains detected)'}
 
 Please generate a Markdown document with:
 1. Module responsibility and purpose

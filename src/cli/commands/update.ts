@@ -7,6 +7,7 @@ import { generateModuleDocs } from '../../core/generator/moduleDoc.js';
 import { loadState, saveState } from '../../core/state.js';
 import { getChanges, getCurrentCommit } from '../../core/incremental/gitDiff.js';
 import { analyzeImpact } from '../../core/incremental/impact.js';
+import { ServiceError } from '../../core/errors.js';
 import { info, warn } from '../../core/logger.js';
 
 export interface UpdateOptions {
@@ -25,7 +26,7 @@ export async function runUpdate(cwd: string, options: UpdateOptions): Promise<vo
   if (!fromRev) {
     const state = loadState(cwd);
     if (!state) {
-      throw new Error('No previous state found. Run `wikichan init` first.');
+      throw new ServiceError('No previous state found. Run `wikichan init` first.');
     }
     fromRev = state.lastProcessedCommit;
   }

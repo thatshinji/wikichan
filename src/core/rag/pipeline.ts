@@ -6,7 +6,7 @@ import type { ParsedEntity } from '../parser/index.js';
 import { chunkBySymbol, buildEmbeddingText, type CodeChunk } from './chunker.js';
 import { createEmbeddingProvider, embedChunk, type EmbeddingProvider } from './embedder.js';
 import { createVectorStore, type VectorStore } from './vectorStore.js';
-import { info, debug } from '../logger.js';
+import { info, debug, warn } from '../logger.js';
 
 export async function buildVectorIndex(
   storage: IndexStorage,
@@ -44,9 +44,10 @@ export async function buildVectorIndex(
 
   // Create embedding provider and vector store
   const embedder = createEmbeddingProvider(config.embedding);
+  const vectorDbPath = config.storage.sqlite.file.replace(/[^/\\]+$/, 'vectors.db');
   const vectorStore = await createVectorStore({
     type: config.vector.type as 'pgvector' | 'sqlite',
-    sqlite: { file: '.wikichan/vectors.db' },
+    sqlite: { file: vectorDbPath },
   });
   await vectorStore.init();
 
@@ -67,7 +68,7 @@ export async function buildVectorIndex(
           info('rag', `Embedded ${stored}/${chunks.length} chunks...`);
         }
       } catch (err) {
-        debug('rag', `Failed to embed chunk ${chunk.chunkId}: ${err}`);
+        warn('rag', `Failed to embed chunk ${chunk.chunkId}: ${err}`);
       }
     }
 
@@ -87,9 +88,10 @@ export async function queryContext(
   }
 
   const embedder = createEmbeddingProvider(config.embedding);
+  const vectorDbPath = config.storage.sqlite.file.replace(/[^/\\]+$/, 'vectors.db');
   const vectorStore = await createVectorStore({
     type: config.vector.type as 'pgvector' | 'sqlite',
-    sqlite: { file: '.wikichan/vectors.db' },
+    sqlite: { file: vectorDbPath },
   });
   await vectorStore.init();
 
