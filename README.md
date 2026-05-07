@@ -12,9 +12,11 @@ WikiChan 是一个 TypeScript CLI 工具，能够自动扫描项目源码，通�
 - **智能文档生成** — 项目总览、模块文档、API 文档、配置文档
 - **增量更新** — 基于 git diff 分析变更影响，只更新受影响的文档
 - **RAG 增强** — 可选的向量检索增强生成，提供更精准的代码上下文
-- **多 LLM 支持** — OpenAI、Claude、DeepSeek 三大提供商
+- **多 LLM 支持** — OpenAI、Claude、DeepSeek 三大提供商，内置指数退避重试
 - **知识图谱** — 自动构建符号依赖关系图，支持传递依赖分析
 - **多存储后端** — SQLite（同步）和 PostgreSQL + pgvector（异步）
+- **安全加固** — 输出路径遍历防护、git ref 注入校验、配置严格验证
+- **大仓库优化** — 文件分批处理（200 文件/批）、按修改时间排序截断
 
 ## 架构总览
 
@@ -248,8 +250,21 @@ docs/wiki/
 | AST 解析 | tree-sitter（TypeScript / JavaScript / Python） |
 | 数据库 | better-sqlite3 / PostgreSQL + pgvector |
 | LLM SDK | OpenAI SDK / Anthropic SDK |
+| 嵌入模型 | OpenAI Embeddings API |
 | 配置 | js-yaml |
 | 文件扫描 | glob |
+
+## API 框架检测
+
+WikiChan 自动识别以下框架的路由定义：
+
+| 框架 | 检测模式 |
+|------|---------|
+| Express | `app.get('/path', handler)` / `router.post(...)` |
+| Fastify | `fastify.get('/path', handler)` |
+| NestJS | `@Get('/path')` / `@Post(...)` 装饰器 |
+| Flask | `@app.route('/path', methods=[...])` |
+| 通用函数命名 | `getUserById` → `GET /user-by-id` |
 
 ## 项目结构
 
@@ -317,7 +332,7 @@ src/
 ### 增量流程（update）
 
 ```
-git diff → 变更文件列表
+git diff → 变更文件列表（ref 校验防注入）
          → Impact Analyzer（影响分析 + BFS 传递依赖）
          → 重新扫描受影响文件
          → 更新索引
