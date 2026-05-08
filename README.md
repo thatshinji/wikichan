@@ -40,16 +40,39 @@ WikiChan 是一个 TypeScript CLI 工具，能够自动扫描项目源码，通�
 ### 安装
 
 ```bash
-# 克隆仓库
-git clone https://github.com/thatshinji/wikichan.git
-cd wikichan
+# 直接使用（无需安装）
+npx wikichan init
 
-# 安装依赖
-npm install
-
-# 构建项目
-npm run build
+# 或全局安装
+npm install -g wikichan
+wikichan init
 ```
+
+### 配置 API Key
+
+WikiChan 需要 LLM API Key 才能生成文档。在项目根目录创建 `.env` 文件：
+
+```bash
+# 创建 .env 文件
+cat > .env << 'EOF'
+WIKICHAN_LLM_API_KEY=你的API密钥
+EOF
+```
+
+或者直接设置环境变量：
+
+```bash
+export WIKICHAN_LLM_API_KEY=你的API密钥
+```
+
+支持的 LLM 提供商：
+
+| 提供商 | 环境变量 | 说明 |
+|--------|---------|------|
+| OpenAI | `WIKICHAN_LLM_API_KEY` | 需要 OpenAI API Key |
+| Claude | `WIKICHAN_LLM_API_KEY` | 需要 Anthropic API Key |
+| DeepSeek | `WIKICHAN_LLM_API_KEY` | 需要 DeepSeek API Key |
+| Minimax | `WIKICHAN_LLM_API_KEY` | 需要 Minimax API Key（Claude 兼容） |
 
 ### 初始化项目
 
