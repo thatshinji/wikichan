@@ -1,6 +1,6 @@
 {
   "name": "wikichan",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Auto-generate project documentation from code analysis + LLM",
   "license": "MIT",
   "type": "module",
@@ -36,6 +36,7 @@
   "dependencies": {
     "better-sqlite3": "^11.8.1",
     "commander": "^13.1.0",
+    "dotenv": "^17.4.2",
     "glob": "^11.0.1",
     "js-yaml": "^4.1.0",
     "openai": "^4.86.0",
