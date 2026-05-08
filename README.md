@@ -9,7 +9,8 @@ WikiChan 是一个 TypeScript CLI 工具，能够自动扫描项目源码，通�
 ## 核心特性
 
 - **多语言支持** — TypeScript、JavaScript、Python 源码解析
-- **智能文档生成** — 项目总览、模块文档、API 文档、配置文档
+- **智能文档生成** — 项目总览、模块文档、API 文档、配置文档，支持 Mermaid 图表和源码引用
+- **多语言输出** — 支持中文、英文、西班牙文、日文等多语言文档生成
 - **增量更新** — 基于 git diff 分析变更影响，只更新受影响的文档
 - **RAG 增强** — 可选的向量检索增强生成，提供更精准的代码上下文
 - **多 LLM 支持** — OpenAI、Claude、DeepSeek 三大提供商，内置指数退避重试
@@ -147,6 +148,9 @@ languages:
   - js
   - py
 
+# 生成文档的语言（zh/en/es/ja，默认 zh）
+language: zh
+
 # 扫描包含的文件模式
 include:
   - "src/**"
@@ -193,6 +197,7 @@ embedding:
 llm:
   provider: openai        # openai / claude / deepseek
   model: gpt-4.1
+  apiBase: ""             # 自定义 API 地址（可选，用于 Minimax 等兼容 API）
   apiKeyEnv: WIKICHAN_LLM_API_KEY
   maxTokens: 4096
   temperature: 0.2
@@ -205,20 +210,58 @@ llm:
 | `WIKICHAN_LLM_API_KEY` | LLM API 密钥 | — |
 | `WIKICHAN_EMBEDDING_API_KEY` | 嵌入模型 API 密钥 | — |
 
+### LLM 提供商示例
+
+```yaml
+# OpenAI
+llm:
+  provider: openai
+  model: gpt-4.1
+  apiKeyEnv: WIKICHAN_LLM_API_KEY
+
+# Claude
+llm:
+  provider: claude
+  model: claude-sonnet-4-20250514
+  apiKeyEnv: WIKICHAN_LLM_API_KEY
+
+# DeepSeek
+llm:
+  provider: deepseek
+  model: deepseek-chat
+  apiKeyEnv: WIKICHAN_LLM_API_KEY
+
+# Minimax（Claude 兼容 API）
+llm:
+  provider: claude
+  model: MiniMax-M2.7-highspeed
+  apiBase: https://api.minimaxi.com/anthropic
+  apiKeyEnv: WIKICHAN_LLM_API_KEY
+```
+
 ## 生成的文档结构
 
 ```
 docs/wiki/
 ├── overview.md          # 项目总览（架构、模块、技术栈）
 ├── modules/
-│   ├── parser.md        # 各模块详细文档
-│   ├── indexer.md
-│   ├── generator.md
+│   ├── core.md          # 各模块详细文档
+│   ├── cli.md
 │   └── ...
 ├── apis/
 │   └── api.md           # API 端点文档
 └── config.md            # 配置说明文档
 ```
+
+### 文档风格
+
+生成的文档采用结构化风格，包含：
+
+- **引用块** — `<cite>` 标签列出所有引用的源文件
+- **目录导航** — 自动生成带锚点的目录
+- **Mermaid 图表** — 架构图、流程图、序列图、状态图、依赖图
+- **源码引用** — 图表和章节后标注来源文件和行号
+- **标准章节** — 简介→项目结构→核心组件→架构总览→详细分析→依赖分析→性能考虑→故障排查→结论→附录
 
 ## CLI 全局选项
 
