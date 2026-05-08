@@ -19,14 +19,17 @@ export async function generateOverview(
 
   // Gather project info
   const modules = getModules(storage);
-  const projectName = path.basename(cwd);
+  let projectName = path.basename(cwd);
 
-  // Try to read package.json for dependencies
+  // Try to read package.json for project name and dependencies
   let dependencies: Record<string, string> = {};
   const pkgPath = path.join(cwd, 'package.json');
   if (fs.existsSync(pkgPath)) {
     try {
       const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+      if (typeof pkg.name === 'string') {
+        projectName = pkg.name;
+      }
       const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
       // Filter to ensure values are strings
       dependencies = Object.fromEntries(

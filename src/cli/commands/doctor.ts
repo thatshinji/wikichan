@@ -87,7 +87,7 @@ export async function runDoctor(cwd: string, options: DoctorOptions): Promise<vo
         await llm.chat({
           systemPrompt: 'Reply with exactly: OK',
           userPrompt: 'Test',
-          maxTokens: 10,
+          maxTokens: 80,
         });
         checks.push({ name: 'llm', status: 'ok', message: 'LLM connection successful' });
       } else {
