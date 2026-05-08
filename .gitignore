@@ -1,6 +1,5 @@
 node_modules/
 dist/
 .wikichan/
-docs/
 *.db
 .env

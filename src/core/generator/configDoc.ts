@@ -5,6 +5,7 @@ import type { WikichanConfig } from '../config.js';
 import type { LLMClient } from '../llm/client.js';
 import { getModules } from '../indexer/graph.js';
 import { info } from '../logger.js';
+import { buildLanguageInstruction } from './templates.js';
 
 export interface ConfigInfo {
   name: string;
@@ -33,8 +34,19 @@ export async function generateConfigDocs(
   info('gen', `Found ${configInfo.length} configuration items`);
 
   // Generate configuration documentation
-  const systemPrompt = `You are a technical documentation writer. Generate clear, well-structured configuration documentation in Markdown format.
-Output ONLY the Markdown content, no preamble or explanations.`;
+  const lang = config.language ?? 'zh';
+  const langName = buildLanguageInstruction(lang);
+
+  const systemPrompt = `You are a technical documentation expert. Generate a comprehensive, well-structured Markdown configuration document based on the provided configuration items.
+
+Requirements:
+- Write ALL content in ${langName}
+- Start the document with a <cite> block listing all referenced configuration files
+- Include a table of contents with anchor links
+- Group configuration items by category (environment variables, config files, scripts, etc.)
+- Each item includes: name, type, description, default value, whether required, examples
+- Provide common configuration patterns and usage examples
+- Output ONLY Markdown content, no preamble or explanations`;
 
   const configList = configInfo.map(c => {
     const defaultVal = c.defaultValue ? `\n  Default: ${c.defaultValue}` : '';
@@ -42,21 +54,21 @@ Output ONLY the Markdown content, no preamble or explanations.`;
     return `- **${c.name}** (${c.type})\n  ${c.description}${defaultVal}${required}`;
   }).join('\n\n');
 
-  const userPrompt = `Generate configuration documentation for the following configuration items:
+  const configFiles = [
+    fs.existsSync(path.join(cwd, '.env')) ? '.env' : null,
+    fs.existsSync(path.join(cwd, '.env.example')) ? '.env.example' : null,
+    fs.existsSync(path.join(cwd, 'package.json')) ? 'package.json' : null,
+    fs.existsSync(path.join(cwd, 'tsconfig.json')) ? 'tsconfig.json' : null,
+  ].filter(Boolean);
+
+  const userPrompt = `Generate configuration documentation in ${langName} for the following configuration items:
 
 ${configList}
 
-Please generate a Markdown document with:
-1. Configuration Overview
-2. Environment Variables (if any)
-3. Configuration File Format (if applicable)
-4. Each configuration item with:
-   - Name and type
-   - Description
-   - Default value (if any)
-   - Whether it's required
-   - Example values (if helpful)
-5. Common configuration patterns or examples`;
+## Configuration Files
+${configFiles.map(f => `- ${f}`).join('\n')}
+
+Generate the complete Markdown configuration document in ${langName}.`;
 
   const response = await llm.chat({
     systemPrompt,

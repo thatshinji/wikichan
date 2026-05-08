@@ -6,6 +6,7 @@ import type { LLMClient } from '../llm/client.js';
 import type { ParsedEntity } from '../parser/index.js';
 import { getModules } from '../indexer/graph.js';
 import { info } from '../logger.js';
+import { buildLanguageInstruction, getSectionNames } from './templates.js';
 
 export interface APIEndpoint {
   method: string;
@@ -44,8 +45,19 @@ export async function generateApiDocs(
   info('gen', `Found ${apiEndpoints.length} API endpoints`);
 
   // Generate API documentation
-  const systemPrompt = `You are a technical documentation writer. Generate clear, well-structured API documentation in Markdown format.
-Output ONLY the Markdown content, no preamble or explanations.`;
+  const lang = config.language ?? 'zh';
+  const langName = buildLanguageInstruction(lang);
+  const sn = getSectionNames(lang);
+
+  const systemPrompt = `You are a technical documentation expert. Generate a comprehensive, well-structured Markdown API document based on the provided endpoint information.
+
+Requirements:
+- Write ALL content in ${langName}
+- Start the document with a <cite> block listing all referenced source files (title: ${sn.citeTitle})
+- Include a table of contents (## ${sn.toc}) with anchor links
+- Use Mermaid sequence diagrams to illustrate request flows
+- Group endpoints by resource, each endpoint includes: method, path, description, request parameters, response format, example
+- Output ONLY Markdown content, no preamble or explanations`;
 
   const endpointList = apiEndpoints.map(ep => {
     const params = ep.params.length > 0 ? `\n  Parameters: ${ep.params.join(', ')}` : '';
@@ -55,21 +67,16 @@ Output ONLY the Markdown content, no preamble or explanations.`;
     return `- ${ep.method} ${ep.path}\n  Handler: ${ep.handler}\n  File: ${ep.file}:${ep.line}${params}${doc}${reqType}${resType}`;
   }).join('\n\n');
 
-  const userPrompt = `Generate API documentation for the following endpoints:
+  const sourceFiles = [...new Set(apiEndpoints.map(ep => ep.file))];
+
+  const userPrompt = `Generate API documentation in ${langName} for the following endpoints:
 
 ${endpointList}
 
-Please generate a Markdown document with:
-1. API Overview
-2. Base URL (if inferable)
-3. Authentication (if inferable)
-4. Endpoints grouped by resource
-5. Each endpoint with:
-   - Method and path
-   - Description
-   - Request parameters
-   - Response format (if inferable)
-   - Example request/response (if inferable)`;
+## Source Files
+${sourceFiles.map(f => `- ${f}`).join('\n')}
+
+Generate the complete Markdown API document in ${langName}.`;
 
   const response = await llm.chat({
     systemPrompt,

@@ -81,6 +81,11 @@ export async function generateOverview(
   // Get top-level directories
   const topLevelDirs = [...new Set(modules.map(m => m.name))];
 
+  // Collect unique source files for citation context
+  const sourceFiles = [...new Set(
+    modules.flatMap(m => m.symbols.map(s => s.file))
+  )].slice(0, 50);
+
   const projectInfo: OverviewInput = {
     projectName,
     languages: config.languages,
@@ -94,9 +99,10 @@ export async function generateOverview(
         .map(s => s.name),
     })),
     dependencies,
+    sourceFiles,
   };
 
-  const prompt = buildOverviewPrompt(projectInfo);
+  const prompt = buildOverviewPrompt(projectInfo, config.language);
 
   // Append RAG context if available
   if (ragContext) {

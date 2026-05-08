@@ -23,8 +23,9 @@ vector:
   enabled: false
   type: pgvector
 llm:
-  provider: openai
-  model: gpt-4.1
+  provider: claude
+  model: MiniMax-M2.7-highspeed
+  apiBase: https://api.minimaxi.com/anthropic
   apiKeyEnv: WIKICHAN_LLM_API_KEY
   maxTokens: 4096
   temperature: 0.2

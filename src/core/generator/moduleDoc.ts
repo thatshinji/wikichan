@@ -64,6 +64,9 @@ export async function generateModuleDocs(
       }
     }
 
+    // Collect unique source files for citation context
+    const sourceFiles = [...new Set(mod.symbols.map(s => s.file))];
+
     const moduleDocInput: ModuleDocInput = {
       name: mod.name,
       symbols: mod.symbols,
@@ -73,9 +76,10 @@ export async function generateModuleDocs(
         type: r.type,
       })),
       sourceSnippets,
+      sourceFiles,
     };
 
-    const prompt = buildModuleDocPrompt(moduleDocInput);
+    const prompt = buildModuleDocPrompt(moduleDocInput, config.language);
 
     // Append RAG context if available
     if (options?.ragContext) {

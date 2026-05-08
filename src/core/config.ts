@@ -5,6 +5,8 @@ import { ConfigError } from './errors.js';
 
 export interface WikichanConfig {
   languages: string[];
+  /** Output language for generated docs: 'zh' for Chinese, 'en' for English, etc. Default: 'zh' */
+  language?: string;
   include: string[];
   exclude: string[];
   maxFiles?: number;
@@ -45,6 +47,7 @@ export interface WikichanConfig {
 export function getDefaultConfig(): WikichanConfig {
   return {
     languages: ['ts', 'js', 'py'],
+    language: 'zh',
     include: ['src/**'],
     exclude: ['node_modules/**', 'dist/**', '.venv/**', 'tests/**'],
     output: {
@@ -83,6 +86,7 @@ function mergeDefaults(raw: Record<string, unknown>, defaults: WikichanConfig): 
   const cfg = { ...defaults };
 
   if (Array.isArray(raw.languages)) cfg.languages = raw.languages as string[];
+  if (typeof raw.language === 'string') cfg.language = raw.language;
   if (Array.isArray(raw.include)) cfg.include = raw.include as string[];
   if (Array.isArray(raw.exclude)) cfg.exclude = raw.exclude as string[];
   if (typeof raw.maxFiles === 'number') {
