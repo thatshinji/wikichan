@@ -3,3 +3,4 @@ dist/
 .wikichan/
 *.db
 .env
+.npmrc
