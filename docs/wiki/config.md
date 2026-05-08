@@ -16,30 +16,33 @@
 
 ## 目录
 
-1. [环境变量](#环境变量)
-   - [WIKICHAN_LLM_API_KEY](#wikichan_llm_api_key)
-2. [NPM 脚本](#npm-脚本)
-   - [build](#build)
-   - [prepublishOnly](#prepublishonly)
-   - [dev](#dev)
-   - [start](#start)
-   - [lint](#lint)
-3. [TypeScript 编译器选项](#typescript-编译器选项)
-   - [target](#target)
-   - [module](#module)
-   - [moduleResolution](#moduleresolution)
-   - [outDir](#outdir)
-   - [rootDir](#rootdir)
-   - [strict](#strict)
-   - [esModuleInterop](#esmoduleinterop)
-   - [resolveJsonModule](#resolvejsonmodule)
-   - [declaration](#declaration)
-   - [sourceMap](#sourcemap)
-   - [skipLibCheck](#skiplibcheck)
-   - [forceConsistentCasingInFileNames](#forceconsistentcasinginfilenames)
-4. [配置示例](#配置示例)
-   - [开发环境配置示例](#开发环境配置示例)
-   - [生产环境配置示例](#生产环境配置示例)
+- [WikiChan 配置文档](#wikichan-配置文档)
+  - [目录](#目录)
+  - [环境变量](#环境变量)
+    - [WIKICHAN\_LLM\_API\_KEY](#wikichan_llm_api_key)
+  - [NPM 脚本](#npm-脚本)
+    - [build](#build)
+    - [prepublishOnly](#prepublishonly)
+    - [dev](#dev)
+    - [start](#start)
+    - [lint](#lint)
+  - [TypeScript 编译器选项](#typescript-编译器选项)
+    - [target](#target)
+    - [module](#module)
+    - [moduleResolution](#moduleresolution)
+    - [outDir](#outdir)
+    - [rootDir](#rootdir)
+    - [strict](#strict)
+    - [esModuleInterop](#esmoduleinterop)
+    - [resolveJsonModule](#resolvejsonmodule)
+    - [declaration](#declaration)
+    - [sourceMap](#sourcemap)
+    - [skipLibCheck](#skiplibcheck)
+    - [forceConsistentCasingInFileNames](#forceconsistentcasinginfilenames)
+  - [配置示例](#配置示例)
+    - [开发环境配置示例](#开发环境配置示例)
+    - [生产环境配置示例](#生产环境配置示例)
+  - [快速参考表](#快速参考表)
 
 ---
 
@@ -53,7 +56,7 @@
 
 **描述**：用于连接大型语言模型 (LLM) API 的认证密钥。该密钥用于验证用户身份并授权访问 WikiChan 的 LLM 功能。在使用 Claude、OpenAI 或其他 LLM 服务时需要此密钥。
 
-**默认值**：`sk-cp-vdCMbXXQ-NTWn8NF_EE4rFmFpsp34_2HNyhbn7JTg92P_Z4RCN4zrENR9sTKDF6gq-aLlEf1dnPhrI2KXzVJhobgTHwblAEzLBvLbNj_vR6LpivKEvEHPbk`
+**默认值**：`xxxxxxxxxx`
 
 **是否必需**：是
 
@@ -63,7 +66,7 @@
 
 ```bash
 # .env 文件
-WIKICHAN_LLM_API_KEY=sk-cp-vdCMbXXQ-NTWn8NF_EE4rFmFpsp34_2HNyhbn7JTg92P_Z4RCN4zrENR9sTKDF6gq-aLlEf1dnPhrI2KXzVJhobgTHwblAEzLBvLbNj_vR6LpivKEvEHPbk
+WIKICHAN_LLM_API_KEY=xxxxxxxxx
 ```
 
 > **安全提示**：请勿将 API 密钥直接提交到版本控制系统。建议使用环境变量管理工具（如 `dotenv`）或 CI/CD 平台的安全存储功能来管理敏感配置。
@@ -533,7 +536,7 @@ npm run lint
 
 ```bash
 # 开发环境 API 密钥
-WIKICHAN_LLM_API_KEY=sk-cp-vdCMbXXQ-NTWn8NF_EE4rFmFpsp34_2HNyhbn7JTg92P_Z4RCN4zrENR9sTKDF6gq-aLlEf1dnPhrI2KXzVJhobgTHwblAEzLBvLbNj_vR6LpivKEvEHPbk
+WIKICHAN_LLM_API_KEY=xxxxxxxxxxxxx
 ```
 
 **`tsconfig.json` 配置**
