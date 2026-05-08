@@ -57,7 +57,15 @@ class PgVectorStore implements VectorStore {
   }
 
   async init(): Promise<void> {
-    const pg = await import('pg');
+    let pg: typeof import('pg');
+    try {
+      pg = await import('pg');
+    } catch (err) {
+      if (err instanceof Error && (err as NodeJS.ErrnoException).code === 'ERR_MODULE_NOT_FOUND') {
+        throw new Error('pgvector store requires the pg package. Install it with: npm install pg');
+      }
+      throw err;
+    }
     this.client = new pg.Client({ connectionString: this.url });
     await this.client.connect();
 

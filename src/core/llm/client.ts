@@ -77,8 +77,15 @@ export async function createLLMClient(config: WikichanConfig['llm']): Promise<LL
       return withRetry(new OpenAIProvider(opts));
     }
     case 'claude': {
-      const { ClaudeProvider } = await import('./providers/claude.js');
-      return withRetry(new ClaudeProvider(opts));
+      try {
+        const { ClaudeProvider } = await import('./providers/claude.js');
+        return withRetry(new ClaudeProvider(opts));
+      } catch (err) {
+        if (err instanceof Error && (err as NodeJS.ErrnoException).code === 'ERR_MODULE_NOT_FOUND') {
+          throw new ServiceError('Claude provider requires @anthropic-ai/sdk. Install it with: npm install @anthropic-ai/sdk');
+        }
+        throw err;
+      }
     }
     case 'deepseek': {
       const { DeepSeekProvider } = await import('./providers/deepseek.js');

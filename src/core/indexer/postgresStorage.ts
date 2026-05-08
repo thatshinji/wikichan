@@ -24,7 +24,15 @@ export interface PostgresStorageConfig {
 }
 
 export async function openPostgresStorage(config: PostgresStorageConfig): Promise<AsyncIndexStorage> {
-  const pg = await import('pg');
+  let pg: typeof import('pg');
+  try {
+    pg = await import('pg');
+  } catch (err) {
+    if (err instanceof Error && (err as NodeJS.ErrnoException).code === 'ERR_MODULE_NOT_FOUND') {
+      throw new Error('Postgres storage requires the pg package. Install it with: npm install pg');
+    }
+    throw err;
+  }
   const client = new pg.Client({ connectionString: config.url });
   await client.connect();
 
